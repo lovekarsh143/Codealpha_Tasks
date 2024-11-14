@@ -1,0 +1,167 @@
+import random
+
+# Categories of words with hints
+WORDS = {
+    "Animals": [("elephant", "The largest land animal"),
+                ("kangaroo", "It hops and has a pouch"),
+                ("penguin", "A flightless bird that swims")],
+    "Technology": [("algorithm", "A step-by-step solution"),
+                   ("python", "A popular programming language"),
+                   ("developer", "A person who writes code")]
+}
+
+# Hangman visual stages
+HANGMAN_STAGES = [
+    """
+     ------
+     |    |
+     |
+     |
+     |
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |
+     |
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |    |
+     |
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |   /|
+     |
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |   /|\\
+     |
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |   /|\\
+     |   /
+     |
+    ---
+    """,
+    """
+     ------
+     |    |
+     |    O
+     |   /|\\
+     |   / \\
+     |
+    ---
+    """
+]
+
+def get_random_word(category):
+    """Select a random word from the specified category."""
+    words = WORDS[category]
+    word, hint = random.choice(words)
+    return word, hint
+
+def display_word(word, guessed_letters):
+    """Display the word with guessed letters and underscores."""
+    return " ".join([letter if letter in guessed_letters else "_" for letter in word])
+
+def play_again():
+    """Ask if the player wants to play again."""
+    return input("\nDo you want to play again? (yes/no): ").strip().lower() == 'yes'
+
+def hangman(category):
+    word, hint = get_random_word(category)
+    guessed_letters = set()
+    incorrect_guesses = 0
+    max_incorrect_guesses = len(HANGMAN_STAGES) - 1
+
+    print(f"\nThe word has {len(word)} letters.")
+    print(f"Hint: {hint}")
+
+    while incorrect_guesses < max_incorrect_guesses:
+        print(HANGMAN_STAGES[incorrect_guesses])
+        print(display_word(word, guessed_letters))
+        print(f"Incorrect guesses: {incorrect_guesses}/{max_incorrect_guesses}")
+
+        guess = input("Guess a letter: ").lower()
+
+        # Validate input
+        if len(guess) != 1 or not guess.isalpha():
+            print("Invalid input. Please enter a single letter.")
+            continue
+
+        if guess in guessed_letters:
+            print(f"You already guessed '{guess}'. Try a different letter.")
+            continue
+
+        guessed_letters.add(guess)
+
+        if guess in word:
+            print(f"Good guess! '{guess}' is in the word.")
+        else:
+            print(f"Sorry! '{guess}' is not in the word.")
+            incorrect_guesses += 1
+
+        # Check if the player has won
+        if set(word).issubset(guessed_letters):
+            print(f"\nCongratulations! You guessed the word: {word}")
+            break
+    else:
+        print(HANGMAN_STAGES[incorrect_guesses])
+        print(f"\nGame Over! The word was: {word}")
+
+    # Play again option
+    if play_again():
+        main_menu()
+    else:
+        print("Thanks for playing! Goodbye.")
+
+def main_menu():
+    """Display the main menu to choose the category."""
+    print("Welcome to Hangman!")
+    print("Choose a category:")
+    print("1. Animals")
+    print("2. Technology")
+
+    choice = input("Enter your choice (1 or 2): ").strip()
+
+    if choice == "1":
+        print("\nYou selected Animals!")
+        print("Here are all the animal names you can guess from:")
+        for w, _ in WORDS["Animals"]:
+            print(w)
+        hangman("Animals")
+    elif choice == "2":
+        print("\nYou selected Technology!")
+        print("Here are all the technology terms you can guess from:")
+        for w, _ in WORDS["Technology"]:
+            print(w)
+        hangman("Technology")
+    else:
+        print("Invalid choice. Please select 1 or 2.")
+        main_menu()
+
+if __name__ == "__main__":
+    main_menu()
